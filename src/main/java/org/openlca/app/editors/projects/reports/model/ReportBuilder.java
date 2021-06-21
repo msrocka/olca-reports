@@ -10,9 +10,7 @@ import org.openlca.app.editors.projects.reports.model.ReportIndicatorResult.Vari
 import org.openlca.app.editors.projects.results.ProjectResultData;
 import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.IDatabase;
-import org.openlca.core.matrix.NwSetTable;
 import org.openlca.core.model.Project;
-import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
 import org.openlca.core.model.descriptors.ImpactDescriptor;
 import org.openlca.core.results.Contribution;
@@ -47,38 +45,31 @@ public class ReportBuilder {
 	    return;
 	  report.clearResults();
 
+	  // add project variants
+    for (var variant : project.variants) {
+      if (variant.isDisabled)
+        continue;
+      report.variants.add(ReportVariant.of(variant));
+    }
 
+    // add cost results
+    if (result.hasCosts()) {
+      appendCostResults(report);
+    }
 
+    // add impacts
+    if (project.impactMethod == null)
+      return;
 
-		appendResults(report);
-		appendCostResults(report);
-		if (project.nwSet != null) {
-			appendNwFactors(report);
-		}
+    // add the impact categories
+    for (var impact : items.impacts()) {
+      report.indicators.add(ReportIndicator.of(project, impact));
+    }
+
+    appendResults(report);
 	}
 
-	private void appendNwFactors(Report report) {
-		try {
-			var table = NwSetTable.of(db, project.nwSet);
-			report.withNormalisation = table.hasNormalization();
-			report.withWeighting = table.hasWeighting();
-			for (ReportIndicator indicator : report.indicators) {
-				if (indicator.descriptor == null)
-					continue;
-				long categoryId = indicator.descriptor.id;
-				if (table.hasNormalization()) {
-					indicator.normalisationFactor =
-							table.getNormalizationFactor(categoryId);
-				}
-				if (table.hasWeighting()) {
-					indicator.weightingFactor =
-							table.getWeightingFactor(categoryId);
-				}
-			}
-		} catch (Exception e) {
-			log.error("failed to load normalisation/weighting factors", e);
-		}
-	}
+
 
 	private void appendResults(Report report) {
 		for (var impact : items.impacts()) {
@@ -100,16 +91,7 @@ public class ReportBuilder {
 		}
 	}
 
-	private ReportIndicatorResult initReportResult(
-		Report report, ImpactDescriptor impact) {
-		for (var indicator : report.indicators) {
-			if (!indicator.displayed)
-				continue;
-			if (Objects.equals(impact, indicator.descriptor))
-				return new ReportIndicatorResult(indicator.id);
-		}
-		return null;
-	}
+
 
 	private void appendProcessContributions(
 			Report report,
@@ -169,12 +151,13 @@ public class ReportBuilder {
 	}
 
 	private void appendCostResults(Report report) {
+
 		var currency = new CurrencyDao(db).getReferenceCurrency();
-		for (ProjectVariant var : result.getVariants()) {
-			double costs = result.getResult(var).totalCosts;
-			report.netCosts.add(ReportCostResult.of(var, currency, costs));
+		for (var v : result.getVariants()) {
+			double costs = result.getResult(v).totalCosts;
+			report.netCosts.add(ReportCostResult.of(v, currency, costs));
 			double addedValue = costs == 0 ? 0 : -costs;
-			report.addedValues.add(ReportCostResult.of(var, currency, addedValue));
+			report.addedValues.add(ReportCostResult.of(v, currency, addedValue));
 		}
 		Comparator<ReportCostResult> c =
 				(r1, r2) -> Strings.compare(r1.variant, r2.variant);
