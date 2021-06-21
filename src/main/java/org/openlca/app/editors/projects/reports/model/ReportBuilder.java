@@ -43,11 +43,13 @@ public class ReportBuilder {
 	}
 
 	public void fill(Report report) {
-		report.results.clear();
-		report.addedValues.clear();
-		report.netCosts.clear();
-		if (project.impactMethod == null)
-			return;
+	  if (report == null)
+	    return;
+	  report.clearResults();
+
+
+
+
 		appendResults(report);
 		appendCostResults(report);
 		if (project.nwSet != null) {
@@ -175,7 +177,7 @@ public class ReportBuilder {
 			report.addedValues.add(ReportCostResult.of(var, currency, addedValue));
 		}
 		Comparator<ReportCostResult> c =
-				(r1, r2) -> Strings.compare(r1.variant(), r2.variant());
+				(r1, r2) -> Strings.compare(r1.variant, r2.variant);
 		report.netCosts.sort(c);
 		report.addedValues.sort(c);
 	}

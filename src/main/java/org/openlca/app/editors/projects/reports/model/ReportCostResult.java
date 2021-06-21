@@ -7,11 +7,9 @@ import org.openlca.core.model.ProjectVariant;
 
 class ReportCostResult {
 
-  private final String variant;
-
-  private final String currency;
-
-  private final double value;
+  final String variant;
+  final String currency;
+  final double value;
 
   private ReportCostResult(String variant, String currency, double value) {
     this.variant = variant;
@@ -30,17 +28,4 @@ class ReportCostResult {
       () -> Objects.requireNonNullElse(currency.name, "?"));
     return new ReportCostResult(v, c, value);
   }
-
-  String variant() {
-    return variant;
-  }
-
-  String currency() {
-    return currency;
-  }
-
-  double value() {
-    return value;
-  }
-
 }
