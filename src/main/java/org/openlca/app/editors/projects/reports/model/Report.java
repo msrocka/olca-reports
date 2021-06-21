@@ -1,11 +1,10 @@
 package org.openlca.app.editors.projects.reports.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import org.slf4j.Logger;
+import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.slf4j.LoggerFactory;
 
 public class Report {
@@ -14,12 +13,12 @@ public class Report {
   public boolean withNormalisation;
   public boolean withWeighting;
   public final List<ReportSection> sections = new ArrayList<>();
-  public final List<ReportProcess> processes = new ArrayList<>();
+  public final List<ProcessDescriptor> processes = new ArrayList<>();
 
   public final List<ReportParameter> parameters = new ArrayList<>();
   public final List<ReportVariant> variants = new ArrayList<>();
   public final List<ReportIndicator> indicators = new ArrayList<>();
-  public final List<ReportIndicatorResult> results = new ArrayList<>();
+  public final List<ReportImpactResult> results = new ArrayList<>();
   public final List<ReportCostResult> addedValues = new ArrayList<>();
   public final List<ReportCostResult> netCosts = new ArrayList<>();
 
