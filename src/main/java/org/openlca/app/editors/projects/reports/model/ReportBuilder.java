@@ -8,11 +8,9 @@ import java.util.TreeSet;
 
 import org.openlca.app.editors.projects.reports.model.ReportIndicatorResult.VariantResult;
 import org.openlca.app.editors.projects.results.ProjectResultData;
-import org.openlca.app.util.Numbers;
 import org.openlca.core.database.CurrencyDao;
 import org.openlca.core.database.IDatabase;
 import org.openlca.core.matrix.NwSetTable;
-import org.openlca.core.model.Currency;
 import org.openlca.core.model.Project;
 import org.openlca.core.model.ProjectVariant;
 import org.openlca.core.model.descriptors.CategorizedDescriptor;
@@ -169,36 +167,17 @@ public class ReportBuilder {
 	}
 
 	private void appendCostResults(Report report) {
-		String currency = getCurrency();
+		var currency = new CurrencyDao(db).getReferenceCurrency();
 		for (ProjectVariant var : result.getVariants()) {
 			double costs = result.getResult(var).totalCosts;
-			report.netCosts.add(cost(var, costs, currency));
+			report.netCosts.add(ReportCostResult.of(var, currency, costs));
 			double addedValue = costs == 0 ? 0 : -costs;
-			report.addedValues.add(cost(var, addedValue, currency));
+			report.addedValues.add(ReportCostResult.of(var, currency, addedValue));
 		}
 		Comparator<ReportCostResult> c =
-				(r1, r2) -> Strings.compare(r1.variant, r2.variant);
+				(r1, r2) -> Strings.compare(r1.variant(), r2.variant());
 		report.netCosts.sort(c);
 		report.addedValues.sort(c);
 	}
 
-	private ReportCostResult cost(ProjectVariant var, double val, String cu) {
-		ReportCostResult r = new ReportCostResult();
-		r.variant = var.name;
-		r.value = Numbers.decimalFormat(val, 2) + " " + cu;
-		return r;
-	}
-
-	private String getCurrency() {
-		try {
-			CurrencyDao dao = new CurrencyDao(db);
-			Currency c = dao.getReferenceCurrency();
-			if (c == null)
-				return "?";
-			return c.code != null ? c.code : c.name;
-		} catch (Exception e) {
-			log.error("failed to load default currency", e);
-			return "?";
-		}
-	}
 }
