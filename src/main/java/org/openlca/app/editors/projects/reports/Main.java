@@ -1,6 +1,9 @@
 package org.openlca.app.editors.projects.reports;
 
-import com.google.gson.Gson;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import com.google.gson.GsonBuilder;
 import org.openlca.app.editors.projects.reports.model.Report;
 import org.openlca.app.editors.projects.reports.model.ReportBuilder;
@@ -14,8 +17,8 @@ public class Main {
 
   public static void main(String[] args) {
     Julia.load();
-    try (var db = Derby.fromDataDir("ei22")) {
-      var refId = "be27bfeb-6491-45b4-9592-3721a798be31";
+    try (var db = Derby.fromDataDir("ei2")) {
+      var refId = "f5f2ab4e-ebbc-47c2-b4a7-06bd65f193e1";
       var project = db.get(Project.class, refId);
       var result = ProjectResult.calculate(project, db);
       var resultData = ProjectResultData.of(project, result, db);
@@ -25,7 +28,10 @@ public class Main {
         .setPrettyPrinting()
         .create()
         .toJson(report);
-      System.out.println(json);
+      var file = Paths.get("C:/Users/Win10/Desktop/call.js");
+      Files.writeString(file, "setData(" + json + ")\n");
+    } catch (Exception e) {
+      e.printStackTrace();
     }
   }
 }

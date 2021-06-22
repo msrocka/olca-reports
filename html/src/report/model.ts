@@ -1,31 +1,36 @@
+export type BaseDescriptor = {
+  refId: string;
+  name: string;
+  description: string;
+};
+
+export type ImpactDescriptor = BaseDescriptor & {
+  referenceUnit: string;
+};
+
+export type ProcessDescriptor = BaseDescriptor;
+
+
 export type Report = {
     title: string;
     withNormalisation: boolean;
     withWeighting: boolean;
-    project?: BaseDescriptor;
     sections?: ReportSection[];
     parameters?: ReportParameter[];
     variants?: ReportVariant[];
     indicators?: ReportIndicator[];
-    processes?: ReportProcess[];
+    processes?: ProcessDescriptor[];
     results?: ReportIndicatorResult[];
     addedValues?: ReportCostResult[];
     netCosts?: ReportCostResult[];
 };
 
-export type BaseDescriptor = {
-    refId: string;
-    name: string;
-    description: string;
-};
 
-export type IndicatorDescriptor = BaseDescriptor & {
-    referenceUnit: string;
-};
+
 
 export type ReportIndicator = {
     id: number;
-    descriptor: IndicatorDescriptor;
+    descriptor: ImpactDescriptor;
     reportName: string;
     reportDescription: string;
     displayed: boolean;
@@ -51,13 +56,6 @@ export type ReportVariant = {
     name: string;
     description: string;
     isDisabled: boolean;
-};
-
-export type ReportProcess = {
-    id: number;
-    descriptor: BaseDescriptor;
-    reportName: string;
-    reportDescription: string;
 };
 
 export type ReportIndicatorResult = {

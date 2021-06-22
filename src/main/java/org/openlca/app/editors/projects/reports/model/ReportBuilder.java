@@ -38,12 +38,14 @@ public class ReportBuilder {
       return;
     report.clearResults();
 
-    // add project variants
+    // add project variants & parameters
     for (var variant : project.variants) {
       if (variant.isDisabled)
         continue;
       report.variants.add(ReportVariant.of(variant));
     }
+    report.parameters.addAll(
+      ReportParameter.allOf(db, data.project()));
 
     // add cost results
     if (result.hasCosts()) {
