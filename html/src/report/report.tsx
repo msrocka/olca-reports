@@ -3,11 +3,14 @@ import { render } from "react-dom";
 
 import { Report, ReportSection } from "./model";
 import {
-    VariantDescriptionTable, IndicatorDescriptionTable,
-    ParameterDescriptionTable, ParameterValueTable,
+    VariantDescriptionTable,
+    IndicatorDescriptionTable,
+    ParameterDescriptionTable,
+    ParameterValueTable,
     ResultTable,
     CostResultTable,
 } from "./tables";
+
 import { ComparisonChart, IndicatorChart, SingleScoreChart } from "./charts";
 
 type Props = { report: Report };

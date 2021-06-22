@@ -92,15 +92,14 @@ public class Report {
     var section = new ReportSection();
     section.index = 0;
     section.title = "Introduction";
-    section.text = "In the following the results of the project are shown. "
-      + "This is a default template for the report of the project results. "
-      + "You can configure this template via the project editor by \n"
+    section.text = "This is a default template for the report of a project result. "
+      + "You can modify this template in the report editor by \n"
       + "\n"
       + "<p><ul>\n"
       + "<li>changing the text of the sections, \n"
       + "<li>adding or removing sections, \n"
       + "<li>moving sections around, \n"
-      + "<li>and selecting visual components that should be shown. \n"
+      + "<li>and selecting visual components that should be shown in the sections. \n"
       + "</ul></p>\n"
       + "\n"
       + "Note that you can also use HTML elements to format the section texts. "

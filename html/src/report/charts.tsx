@@ -28,6 +28,7 @@ export const IndicatorChart = ({ report, contributions }: IndicatorConfig) => {
           label: indicator.impact.name,
           borderColor: "#7b0052",
           backgroundColor: "#7b0052",
+          maxBarThickness: 50,
           data: variants.map((v) => getVariantResult(report, v, indicator)),
         }],
       };
