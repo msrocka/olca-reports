@@ -1,4 +1,4 @@
-import { Chart, ChartConfiguration, ChartData } from "chart.js";
+import { Chart, ChartConfiguration } from "chart.js";
 import React, { useEffect, useRef, useState } from "react";
 import * as model from "./model";
 
@@ -16,15 +16,8 @@ export const IndicatorBarChart = ({ report }: { report: model.Report }) => {
 
   const canvas = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
-
-    const config: ChartConfiguration = {
-      type: "bar",
-      data: chartDataOf(report, indicators[indicatorIdx]),
-      options: {
-        responsive: false,
-      }
-    };
-
+    const indicator = indicators[indicatorIdx];
+    const config = configOf(report, indicator);
     const context2d = canvas.current?.getContext("2d");
     const chart = context2d
       ? new Chart(context2d, config)
@@ -52,22 +45,42 @@ export const IndicatorBarChart = ({ report }: { report: model.Report }) => {
   );
 }
 
-function chartDataOf(
-  report: model.Report, indicator: model.ReportIndicator): ChartData {
+function configOf(
+  report: model.Report,
+  indicator: model.ReportIndicator): ChartConfiguration {
+
   const results = [];
   const labels = [];
   for (const variant of report.variants) {
     labels.push(variant.name);
     results.push(model.getVariantResult(report, variant, indicator));
   }
+
   return {
-    labels,
-    datasets: [{
-      data: results,
-      label: indicator.impact.name,
-      borderColor: "#7b0052",
-      backgroundColor: "#7b0052",
-      maxBarThickness: 50,
-    }],
+
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{
+        data: results,
+        label: indicator.impact.name,
+        borderColor: "#7b0052",
+        backgroundColor: "#7b0052",
+        maxBarThickness: 50,
+      }],
+    },
+
+    options: {
+      responsive: false,
+      scales: {
+        y: {
+          title: {
+            display: true,
+            text: indicator.impact.referenceUnit || ""
+          },
+        }
+      },
+      plugins: { legend: { display: false } }
+    },
   };
 }
