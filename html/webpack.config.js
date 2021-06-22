@@ -29,8 +29,7 @@ const config = {
             { from: 'src/**/*.css', to: dist, flatten: true },
             { from: 'node_modules/react/umd/react.production.min.js', to: dist + '/lib/react.js', type: 'file' },
             { from: 'node_modules/react-dom/umd/react-dom.production.min.js', to: dist + '/lib/react-dom.js', type: 'file' },
-            { from: 'node_modules/chart.js/dist/Chart.min.js', to: dist + '/lib/Chart.min.js', type: 'file' },
-            { from: 'node_modules/chart.js/dist/Chart.min.css', to: dist + '/lib/Chart.min.css', type: 'file' },
+            { from: 'node_modules/chart.js/dist/chart.min.js', to: dist + '/lib/chart.min.js', type: 'file' },
             { from: 'node_modules/milligram/dist/milligram.min.css', to: dist + '/lib/milligram.min.css', type: 'file' },
             { from: 'node_modules/normalize.css/normalize.css', to: dist + '/lib/normalize.css', type: 'file' },
         ]),
@@ -60,7 +59,7 @@ const config = {
     },
 };
 
-module.exports = (env, argv) => {
+module.exports = (_, argv) => {
     if (argv.mode === 'development') {
         config.devtool = 'source-map';
     }
