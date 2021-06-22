@@ -11,6 +11,8 @@ import {
     CostResultTable,
 } from "./tables";
 
+import { IndicatorBarChart } from "./indicator-bar-chart";
+
 import { ComparisonChart, IndicatorChart, SingleScoreChart } from "./charts";
 
 type Props = { report: Report };
@@ -76,7 +78,7 @@ const getSectionComponent = (id: string, report: Report) => {
         case "normalisation_radar_chart":
             return <ComparisonChart report={report} type="radar" normalized />;
         case "indicator_bar_chart":
-            return <IndicatorChart report={report} />;
+            return <IndicatorBarChart report={report} />;
         case "single_score_bar_chart":
             return <SingleScoreChart report={report} />;
         case "process_contribution_chart":
