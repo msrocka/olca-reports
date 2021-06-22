@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import com.google.gson.GsonBuilder;
+import org.openlca.app.editors.projects.results.ProjectResultData;
 import org.openlca.core.model.descriptors.ProcessDescriptor;
 import org.slf4j.LoggerFactory;
 
@@ -15,12 +17,12 @@ public class Report {
   public final List<ReportSection> sections = new ArrayList<>();
   public final List<ProcessDescriptor> processes = new ArrayList<>();
 
-  public final List<ReportVariant> variants = new ArrayList<>();
-  public final List<ReportParameter> parameters = new ArrayList<>();
-  public final List<ReportIndicator> indicators = new ArrayList<>();
-  public final List<ReportImpactResult> results = new ArrayList<>();
-  public final List<ReportCostResult> addedValues = new ArrayList<>();
-  public final List<ReportCostResult> netCosts = new ArrayList<>();
+  final List<ReportVariant> variants = new ArrayList<>();
+  final List<ReportParameter> parameters = new ArrayList<>();
+  final List<ReportIndicator> indicators = new ArrayList<>();
+  final List<ReportImpactResult> results = new ArrayList<>();
+  final List<ReportCostResult> addedValues = new ArrayList<>();
+  final List<ReportCostResult> netCosts = new ArrayList<>();
 
   /**
    * Removes the result data from this report. The result data are the
@@ -39,6 +41,17 @@ public class Report {
     }
   }
 
+  public Report fill(ProjectResultData data) {
+    ReportFiller.of(data).fill(this);
+    return this;
+  }
+
+  public String toJson() {
+    return new GsonBuilder()
+      .setPrettyPrinting()
+      .create()
+      .toJson(this);
+  }
 
   /**
    * Initializes a new report with default sections.

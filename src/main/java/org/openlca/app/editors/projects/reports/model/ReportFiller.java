@@ -13,7 +13,7 @@ import org.openlca.core.results.ProjectResult;
 import org.openlca.core.results.ResultItemView;
 import org.openlca.util.Strings;
 
-public class ReportBuilder {
+class ReportFiller {
 
   private final ProjectResultData data;
   private final IDatabase db;
@@ -21,7 +21,7 @@ public class ReportBuilder {
   private final ProjectResult result;
   private final ResultItemView items;
 
-  private ReportBuilder(ProjectResultData data) {
+  private ReportFiller(ProjectResultData data) {
     this.data = data;
     this.db = data.db();
     this.project = data.project();
@@ -29,11 +29,11 @@ public class ReportBuilder {
     this.items = data.items();
   }
 
-  public static ReportBuilder of(ProjectResultData data) {
-    return new ReportBuilder(data);
+  static ReportFiller of(ProjectResultData data) {
+    return new ReportFiller(data);
   }
 
-  public void fill(Report report) {
+  void fill(Report report) {
     if (report == null)
       return;
     report.clearResults();

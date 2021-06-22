@@ -36,14 +36,20 @@ public class ProjectResultData {
 			: null;
 	}
 
-	public static ProjectResultData of(Project project, ProjectResult result, IDatabase db) {
+	public static ProjectResultData wrap(
+	  Project project, ProjectResult result, IDatabase db) {
 		return new ProjectResultData(project, result, db);
 	}
+
+	public static ProjectResultData calculate(Project project, IDatabase db) {
+    var result = ProjectResult.calculate(project, db);
+    return wrap(project, result, db);
+  }
 
 	public IDatabase db() {
 		return db;
 	}
-	
+
 	public ProjectResult result() {
 		return result;
 	}
