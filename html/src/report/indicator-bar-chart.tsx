@@ -27,18 +27,10 @@ export const IndicatorBarChart = ({ report }: { report: model.Report }) => {
 
   return (
     <div style={{ textAlign: "center" }}>
-      <form>
-        <fieldset>
-          <select value={indicatorIdx} style={{ width: 300 }}
-            onChange={(e) => setIndicatorIdx(parseInt(e.target.value, 10))}>
-            {indicators.map((indicator, idx) => (
-              <option key={indicator.impact.refId} value={idx}>
-                {indicator.impact.name}
-              </option>
-            ))}
-          </select>
-        </fieldset>
-      </form>
+      <IndicatorCombo
+        indicators={indicators}
+        selectedIndex={indicatorIdx}
+        onChange={setIndicatorIdx} />
       <canvas width="650" height="400" ref={canvas}
         style={{ display: "inline-block" }} />
     </div>
@@ -55,6 +47,7 @@ function configOf(
     labels.push(variant.name);
     results.push(model.getVariantResult(report, variant, indicator));
   }
+  const unit = indicator.impact.referenceUnit || "";
 
   return {
 
@@ -73,14 +66,42 @@ function configOf(
     options: {
       responsive: false,
       scales: {
-        y: {
-          title: {
-            display: true,
-            text: indicator.impact.referenceUnit || ""
-          },
-        }
+        y: { title: { display: true, text: unit } }
       },
-      plugins: { legend: { display: false } }
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (item) => `${item.formattedValue} ${unit}`,
+          }
+        }
+      }
     },
   };
+}
+
+const IndicatorCombo = ({ indicators, selectedIndex, onChange }: {
+  indicators: model.ReportIndicator[],
+  selectedIndex: number,
+  onChange: (nextIndex: number) => void,
+}) => {
+
+  const options = indicators.map((indicator, idx) => (
+    <option key={indicator.impact.refId} value={idx}>
+      {indicator.impact.name}
+    </option>
+  ));
+
+  return (
+    <form>
+      <fieldset>
+        <select
+          value={selectedIndex}
+          style={{ width: 300 }}
+          onChange={e => onChange(parseInt(e.target.value, 10))}>
+          {options}
+        </select>
+      </fieldset>
+    </form>
+  );
 }
