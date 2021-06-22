@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
   Report, ReportVariant, ReportIndicator, getVariantResult,
-  getNormalizedResult, getIndicators, getVariants, scientific, getSingleScore, getContribution,
+  getNormalizedResult, scientific, getSingleScore, getContribution,
 } from "./model";
 import { Chart, ChartData, ChartConfiguration } from "chart.js";
 
 type IndicatorConfig = { report: Report; contributions?: boolean };
 export const IndicatorChart = ({ report, contributions }: IndicatorConfig) => {
-  const indicators = getIndicators(report);
-  const variants = getVariants(report);
+  const indicators = report.indicators;
+  const variants = report.variants;
   if (!variants || variants.length === 0 ||
     !indicators || indicators.length === 0) {
     return null;
@@ -25,7 +25,7 @@ export const IndicatorChart = ({ report, contributions }: IndicatorConfig) => {
       data = {
         labels: variants.map((v) => v.name),
         datasets: [{
-          label: indicator.reportName,
+          label: indicator.impact.name,
           borderColor: "#7b0052",
           backgroundColor: "#7b0052",
           data: variants.map((v) => getVariantResult(report, v, indicator)),
@@ -36,7 +36,7 @@ export const IndicatorChart = ({ report, contributions }: IndicatorConfig) => {
         labels: variants.map((v) => v.name),
         datasets: report.processes.map((process, idx) => {
           return {
-            label: process.reportName,
+            label: process.name,
             backgroundColor: _color(idx),
             data: variants.map((variant) => getContribution(
               { report, indicator, variant, process })),
@@ -71,8 +71,8 @@ export const IndicatorChart = ({ report, contributions }: IndicatorConfig) => {
           <select value={indicatorIdx} style={{ width: 300 }}
             onChange={(e) => setIndicatorIdx(parseInt(e.target.value, 10))}>
             {indicators.map((indicator, idx) => (
-              <option key={indicator.id} value={idx}>
-                {indicator.reportName}
+              <option key={indicator.impact.refId} value={idx}>
+                {indicator.impact.name}
               </option>
             ))}
           </select>
@@ -85,8 +85,8 @@ export const IndicatorChart = ({ report, contributions }: IndicatorConfig) => {
 };
 
 export const SingleScoreChart = ({ report }: { report: Report }) => {
-  const indicators = getIndicators(report);
-  const variants = getVariants(report);
+  const indicators = report.indicators;
+  const variants = report.variants;
   if (!variants || variants.length === 0 ||
     !indicators || indicators.length === 0) {
     return null;
@@ -95,7 +95,7 @@ export const SingleScoreChart = ({ report }: { report: Report }) => {
     labels: variants.map((v) => v.name),
     datasets: indicators.map((i, idx) => {
       return {
-        label: i.reportName,
+        label: i.impact.name,
         backgroundColor: _color(idx),
         data: variants.map((v) => getSingleScore(report, v, i)),
       };
@@ -113,8 +113,8 @@ type CompProps = {
 /** A bar or radar chart that compares all indicator values of all */
 export const ComparisonChart = (props: CompProps) => {
   const { report, type } = props;
-  const indicators = getIndicators(report);
-  const variants = getVariants(report);
+  const indicators = report.indicators;
+  const variants = report.variants;
   if (!variants || variants.length === 0 ||
     !indicators || indicators.length === 0) {
     return null;
@@ -260,8 +260,8 @@ function _color(i: number, alpha?: number): string {
 
 /** Returns the maximum indicator values in a map: indicator ID -> max. */
 function _maxIndicatorValues(report: Report, variants: ReportVariant[],
-  indicators: ReportIndicator[]): Record<number, number> {
-  type NMap = Record<number, number>;
+  indicators: ReportIndicator[]): Record<string, number> {
+  type NMap = Record<string, number>;
   const maxvals: NMap = indicators.reduce((m: NMap, indicator) => {
     let max: number = variants.reduce((m: number, variant) => {
       const result = Math.abs(
@@ -269,7 +269,7 @@ function _maxIndicatorValues(report: Report, variants: ReportVariant[],
       return Math.max(result, m);
     }, 0);
     max = max === 0 ? 1 : max;
-    m[indicator.id] = max;
+    m[indicator.impact.refId] = max;
     return m;
   }, {});
   return maxvals;
@@ -280,7 +280,7 @@ function _comparisonData(p: CompProps, variants: ReportVariant[],
   const maxvals = p.normalized ? null : _maxIndicatorValues(
     p.report, variants, indicators);
   return {
-    labels: indicators.map((i) => i.reportName),
+    labels: indicators.map((i) => i.impact.name),
     datasets: variants.map((v, index) => {
       return {
         label: v.name,
@@ -291,7 +291,7 @@ function _comparisonData(p: CompProps, variants: ReportVariant[],
             return getNormalizedResult(p.report, v, i);
           }
           const result = getVariantResult(p.report, v, i);
-          return 100 * result / maxvals[i.id];
+          return 100 * result / maxvals[i.impact.refId];
         }),
       };
     }),
