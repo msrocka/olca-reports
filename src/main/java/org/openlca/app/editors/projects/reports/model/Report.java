@@ -15,8 +15,8 @@ public class Report {
   public final List<ReportSection> sections = new ArrayList<>();
   public final List<ProcessDescriptor> processes = new ArrayList<>();
 
-  public final List<ReportParameter> parameters = new ArrayList<>();
   public final List<ReportVariant> variants = new ArrayList<>();
+  public final List<ReportParameter> parameters = new ArrayList<>();
   public final List<ReportIndicator> indicators = new ArrayList<>();
   public final List<ReportImpactResult> results = new ArrayList<>();
   public final List<ReportCostResult> addedValues = new ArrayList<>();
