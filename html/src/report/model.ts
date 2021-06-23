@@ -108,44 +108,6 @@ export const getSingleScore = (r: Report, v: ReportVariant,
   return n * i.weightingFactor;
 };
 
-type ContributionOptions = {
-  report: Report;
-  variant: ReportVariant;
-  indicator: ReportIndicator;
-  process?: Descriptor;
-  rest?: boolean;
-};
-export function getContribution(c: ContributionOptions): number {
-  if (!c.report.results) {
-    return 0;
-  }
-  for (const result of c.report.results) {
-    if (result.indicatorId !== c.indicator.impact.refId
-      || !result.variantResults) {
-      continue;
-    }
-    for (const vr of result.variantResults) {
-      if (vr.variant !== c.variant.name || !vr.contributions) {
-        continue;
-      }
-
-      if (c.rest) {
-        let rest = vr.totalAmount;
-        for (const processId of Object.keys(vr.contributions)) {
-          const v = vr.contributions[processId] || 0;
-          rest -= v;
-        }
-        return rest;
-      }
-
-      if (c.process) {
-        return vr.contributions[c.process.refId] || 0;
-      }
-    }
-  }
-  return 0;
-};
-
 export function scientific(n: number): string {
   if (!n) {
     return "0";

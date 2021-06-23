@@ -1,14 +1,21 @@
 import { Chart, ChartConfiguration } from "chart.js";
 import React, { useEffect, useRef, useState } from "react";
 
-import * as model from "../model";
+import {
+  ProcessDescriptor,
+  Report,
+  ReportIndicator,
+  ReportVariant,
+  VariantResult
+} from "../model";
 import { colorOf, IndicatorCombo } from "./charts";
 
-export const ProcessContributionChart = ({ report }: { report: model.Report }) => {
+export const ProcessContributionChart = ({ report }: { report: Report }) => {
   const indicators = report.indicators;
   if (isEmpty(report.indicators)
     || isEmpty(report.variants)
-    || isEmpty(report.processes)) {
+    || isEmpty(report.processes)
+    || isEmpty(report.results)) {
     return <></>;
   }
 
@@ -39,7 +46,7 @@ export const ProcessContributionChart = ({ report }: { report: model.Report }) =
 
 }
 
-function configOf(report: model.Report, indicator: model.ReportIndicator):
+function configOf(report: Report, indicator: ReportIndicator):
   ChartConfiguration {
 
   const variants = report.variants;
@@ -49,8 +56,7 @@ function configOf(report: model.Report, indicator: model.ReportIndicator):
     label: "Other",
     backgroundColor: "rgba(121, 121, 121, 0.5)",
     maxBarThickness: 50,
-    data: variants.map((variant) => model.getContribution(
-      { report, indicator, variant, rest: true })),
+    data: variants.map(v => restOf(report, indicator, v)),
   });
   for (let i = 0; i < report.processes.length; i++) {
     const process = report.processes[i];
@@ -58,8 +64,7 @@ function configOf(report: model.Report, indicator: model.ReportIndicator):
       label: process.name,
       backgroundColor: colorOf(i),
       maxBarThickness: 50,
-      data: variants.map(variant => model.getContribution(
-        { report, indicator, variant, process }))
+      data: variants.map(v => contributionOf(report, indicator, v, process))
     })
   }
 
@@ -97,4 +102,48 @@ function configOf(report: model.Report, indicator: model.ReportIndicator):
 
 function isEmpty<T>(xs: T[]): boolean {
   return !xs || xs.length == 0;
+}
+
+function contributionOf(report: Report, indicator: ReportIndicator,
+  variant: ReportVariant, process: ProcessDescriptor): number {
+  const result = variantResultOf(report, indicator, variant);
+  if (!result || !result.contributions) {
+    return 0;
+  }
+  return result.contributions[process.refId] || 0;
+};
+
+function restOf(report: Report, indicator: ReportIndicator,
+  variant: ReportVariant): number {
+  const result = variantResultOf(report, indicator, variant);
+  if (!result) {
+    return 0;
+  }
+  let rest = result.totalAmount;
+  if (!result.contributions) {
+    return rest;
+  }
+  for (const processId of Object.keys(result.contributions)) {
+    const c = result.contributions[processId] || 0;
+    rest -= c;
+  }
+  return rest;
+}
+
+function variantResultOf(
+  report: Report,
+  indicator: ReportIndicator,
+  variant: ReportVariant): VariantResult {
+  for (const result of report.results) {
+    if (result.indicatorId != indicator.impact.refId
+      || isEmpty(result.variantResults)) {
+      continue;
+    }
+    for (const vr of result.variantResults) {
+      if (vr.variant == variant.name) {
+        return vr;
+      }
+    }
+  }
+  return null;
 }
