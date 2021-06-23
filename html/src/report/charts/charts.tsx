@@ -1,30 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import {
   Report, ReportVariant, ReportIndicator, getVariantResult,
-  getNormalizedResult, scientific, getSingleScore,
+  getNormalizedResult,
 } from "../model";
 import { Chart, ChartData, ChartConfiguration } from "chart.js";
-
-export const SingleScoreChart = ({ report }: { report: Report }) => {
-  const indicators = report.indicators;
-  const variants = report.variants;
-  if (!variants || variants.length === 0 ||
-    !indicators || indicators.length === 0) {
-    return null;
-  }
-  const data: ChartData = {
-    labels: variants.map((v) => v.name),
-    datasets: indicators.map((i, idx) => {
-      return {
-        label: i.impact.name,
-        backgroundColor: colorOf(idx),
-        data: variants.map((v) => getSingleScore(report, v, i)),
-      };
-    }),
-  };
-  const config = _barConfig(data, { stacked: true });
-  return _staticChart(config);
-};
 
 type CompProps = {
   report: Report,
@@ -87,11 +66,12 @@ export const ComparisonChart = (props: CompProps) => {
   }
   */
 
-  return _staticChart(config);
+  return staticChartOf(config);
 };
 
-function _staticChart(config: ChartConfiguration) {
-  const canvas = useRef(null);
+export function staticChartOf(config: ChartConfiguration): JSX.Element {
+
+  const canvas = useRef<HTMLCanvasElement>(null);
   let chart: Chart | null = null;
   useEffect(() => {
     if (chart) {
@@ -113,40 +93,6 @@ function _staticChart(config: ChartConfiguration) {
         style={{ display: "inline-block" }} />
     </div>
   );
-}
-
-function _barConfig(data: ChartData,
-  conf?: { legend?: boolean, stacked?: boolean }): ChartConfiguration {
-  const hideLegend = conf && conf.legend === false;
-  const stacked = conf && conf.stacked === true;
-  return {
-    type: "bar",
-    data,
-    options: {
-      responsive: false,
-      scales: {
-        xAxes: {
-          stacked,
-          //maxBarThickness: 50,
-        },
-        yAxes: {
-          stacked,
-          //ticks: { beginAtZero: true },
-        },
-      },
-      plugins: {
-        legend: { display: !hideLegend, position: "bottom" },
-        tooltip: {
-          callbacks: {
-            label: (item: any) => {
-              const value = parseFloat(item.value);
-              return `${item.label}: ${scientific(value)}`;
-            },
-          },
-        },
-      },
-    },
-  };
 }
 
 export function colorOf(i: number, alpha?: number): string {

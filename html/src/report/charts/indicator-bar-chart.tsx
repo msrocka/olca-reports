@@ -3,13 +3,12 @@ import React, { useEffect, useRef, useState } from "react";
 
 import * as model from "../model";
 import { IndicatorCombo } from "./charts";
+import { hasResults, isEmpty } from "../util";
 
 export const IndicatorBarChart = ({ report }: { report: model.Report }) => {
 
   const indicators = report.indicators;
-  const variants = report.variants;
-  if (!variants || variants.length === 0 ||
-    !indicators || indicators.length === 0) {
+  if (!hasResults(report)) {
     return <></>;
   }
 

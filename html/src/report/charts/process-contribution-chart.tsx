@@ -9,12 +9,11 @@ import {
   VariantResult
 } from "../model";
 import { colorOf, IndicatorCombo } from "./charts";
+import { hasResults, isEmpty } from "../util";
 
 export const ProcessContributionChart = ({ report }: { report: Report }) => {
   const indicators = report.indicators;
-  if (isEmpty(report.indicators)
-    || isEmpty(report.variants)
-    || isEmpty(report.processes)
+  if (!hasResults(report)
     || isEmpty(report.results)) {
     return <></>;
   }
@@ -98,10 +97,6 @@ function configOf(report: Report, indicator: ReportIndicator):
       }
     },
   }
-}
-
-function isEmpty<T>(xs: T[]): boolean {
-  return !xs || xs.length == 0;
 }
 
 function contributionOf(report: Report, indicator: ReportIndicator,
