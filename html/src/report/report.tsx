@@ -12,6 +12,7 @@ import {
 } from "./tables";
 
 import { IndicatorBarChart } from "./indicator-bar-chart";
+import { ProcessContributionChart } from "./process-contribution-chart";
 
 import { ComparisonChart, IndicatorChart, SingleScoreChart } from "./charts";
 
@@ -82,7 +83,7 @@ const getSectionComponent = (id: string, report: Report) => {
         case "single_score_bar_chart":
             return <SingleScoreChart report={report} />;
         case "process_contribution_chart":
-            return <IndicatorChart report={report} contributions />;
+            return <ProcessContributionChart report={report} />;
         default:
             return null;
     }

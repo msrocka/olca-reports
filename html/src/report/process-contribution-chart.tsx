@@ -1,14 +1,14 @@
-import { Chart, ChartConfiguration } from "chart.js";
+import { Chart, ChartConfiguration, ChartData } from "chart.js";
 import React, { useEffect, useRef, useState } from "react";
 
 import * as model from "./model";
-import { IndicatorCombo } from "./indicator-combo";
+import { colorOf, IndicatorCombo } from "./charts";
 
 export const ProcessContributionChart = ({ report }: { report: model.Report }) => {
   const indicators = report.indicators;
-  const variants = report.variants;
-  if (!variants || variants.length === 0 ||
-    !indicators || indicators.length === 0) {
+  if (isEmpty(report.indicators)
+    || isEmpty(report.variants)
+    || isEmpty(report.processes)) {
     return <></>;
   }
 
@@ -42,9 +42,55 @@ export const ProcessContributionChart = ({ report }: { report: model.Report }) =
 function configOf(report: model.Report, indicator: model.ReportIndicator):
   ChartConfiguration {
 
+  const variants = report.variants;
+
+  const data: ChartData = {
+    labels: variants.map(variant => variant.name),
+    datasets: report.processes.map((process, idx) => {
+      return {
+        label: process.name,
+        backgroundColor: colorOf(idx),
+        maxBarThickness: 50,
+        data: variants.map(variant => model.getContribution(
+          { report, indicator, variant, process }))
+      }
+    })
+  };
+  data.datasets.push({
+    label: "Other",
+    backgroundColor: "rgba(121, 121, 121, 0.5)",
+    maxBarThickness: 50,
+    data: variants.map((variant) => model.getContribution(
+      { report, indicator, variant, rest: true })),
+  });
+
+  const unit = indicator.impact.referenceUnit || "";
+
   return {
     type: "bar",
-
+    data,
+    options: {
+      responsive: false,
+      scales: {
+        x: { stacked: true },
+        y: {
+          stacked: true,
+          title: { display: true, text: unit }
+        }
+      },
+      plugins: {
+        legend: { display: true, position: "bottom" },
+        tooltip: {
+          callbacks: {
+            label: (item) => `${item.formattedValue} ${unit}`,
+          }
+        }
+      }
+    },
   }
 
+}
+
+function isEmpty<T>(xs: T[]): boolean {
+  return !xs || xs.length == 0;
 }
