@@ -13,14 +13,14 @@ public class DefaultReportExample {
 
   public static void main(String[] args) {
     Julia.load();
-    try (var db = Derby.fromDataDir("ei2")) {
-      var refId = "f5f2ab4e-ebbc-47c2-b4a7-06bd65f193e1";
+    try (var db = Derby.fromDataDir("ei22")) {
+      var refId = "be27bfeb-6491-45b4-9592-3721a798be31";
       var project = db.get(Project.class, refId);
       var result = ProjectResultData.calculate(project, db);
       var json = Report.initDefault()
         .fill(result)
         .toJson();
-      var file = Paths.get("C:/Users/Win10/Desktop/call.js");
+      var file = Paths.get("C:/Users/ms/Desktop/call.js");
       Files.writeString(file, "setData(" + json + ")\n");
     } catch (Exception e) {
       e.printStackTrace();

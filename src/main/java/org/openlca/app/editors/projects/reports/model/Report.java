@@ -39,6 +39,8 @@ public class Report {
     for (var list : lists) {
       list.clear();
     }
+    withNormalisation = false;
+    withWeighting = false;
   }
 
   public Report fill(ProjectResultData data) {
