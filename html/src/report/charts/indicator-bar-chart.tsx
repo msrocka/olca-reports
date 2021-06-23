@@ -1,7 +1,7 @@
 import { Chart, ChartConfiguration } from "chart.js";
 import React, { useEffect, useRef, useState } from "react";
 
-import * as model from "./model";
+import * as model from "../model";
 import { IndicatorCombo } from "./charts";
 
 export const IndicatorBarChart = ({ report }: { report: model.Report }) => {

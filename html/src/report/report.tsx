@@ -11,10 +11,10 @@ import {
     CostResultTable,
 } from "./tables";
 
-import { IndicatorBarChart } from "./indicator-bar-chart";
-import { ProcessContributionChart } from "./process-contribution-chart";
+import { IndicatorBarChart } from "./charts/indicator-bar-chart";
+import { ProcessContributionChart } from "./charts/process-contribution-chart";
 
-import { ComparisonChart, IndicatorChart, SingleScoreChart } from "./charts";
+import { ComparisonChart, SingleScoreChart } from "./charts/charts";
 
 type Props = { report: Report };
 

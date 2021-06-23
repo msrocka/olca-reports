@@ -1,89 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   Report, ReportVariant, ReportIndicator, getVariantResult,
-  getNormalizedResult, scientific, getSingleScore, getContribution,
-} from "./model";
+  getNormalizedResult, scientific, getSingleScore,
+} from "../model";
 import { Chart, ChartData, ChartConfiguration } from "chart.js";
-
-type IndicatorConfig = { report: Report; contributions?: boolean };
-export const IndicatorChart = ({ report, contributions }: IndicatorConfig) => {
-  const indicators = report.indicators;
-  const variants = report.variants;
-  if (!variants || variants.length === 0 ||
-    !indicators || indicators.length === 0) {
-    return null;
-  }
-
-  // we store the index of the selected indicator as state
-  const [indicatorIdx, setIndicatorIdx] = useState(0);
-
-  const canvas = useRef(null);
-  useEffect(() => {
-    const indicator = indicators[indicatorIdx];
-    let data: ChartData;
-    if (contributions !== true || !report.processes) {
-      data = {
-        labels: variants.map((v) => v.name),
-        datasets: [{
-          label: indicator.impact.name,
-          borderColor: "#7b0052",
-          backgroundColor: "#7b0052",
-          maxBarThickness: 50,
-          data: variants.map((v) => getVariantResult(report, v, indicator)),
-        }],
-      };
-    } else {
-      data = {
-        labels: variants.map((v) => v.name),
-        datasets: report.processes.map((process, idx) => {
-          return {
-            label: process.name,
-            backgroundColor: colorOf(idx),
-            data: variants.map((variant) => getContribution(
-              { report, indicator, variant, process })),
-          };
-        }),
-      };
-      data.datasets.push({
-        label: "Other",
-        backgroundColor: "rgba(121, 121, 121, 0.5)",
-        data: variants.map((variant) => getContribution(
-          { report, indicator, variant, rest: true })),
-      });
-    }
-
-    const config = _barConfig(data, {
-      legend: contributions === true,
-      stacked: contributions === true,
-    });
-    const ctxt = canvas.current.getContext("2d");
-    const chart = new Chart(ctxt, config);
-    return () => {
-      if (chart) {
-        chart.destroy();
-      }
-    };
-  });
-
-  return (
-    <div style={{ textAlign: "center" }}>
-      <form>
-        <fieldset>
-          <select value={indicatorIdx} style={{ width: 300 }}
-            onChange={(e) => setIndicatorIdx(parseInt(e.target.value, 10))}>
-            {indicators.map((indicator, idx) => (
-              <option key={indicator.impact.refId} value={idx}>
-                {indicator.impact.name}
-              </option>
-            ))}
-          </select>
-        </fieldset>
-      </form>
-      <canvas width="650" height="400" ref={canvas}
-        style={{ display: "inline-block" }} />
-    </div>
-  );
-};
 
 export const SingleScoreChart = ({ report }: { report: Report }) => {
   const indicators = report.indicators;

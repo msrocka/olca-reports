@@ -1,7 +1,7 @@
-import { Chart, ChartConfiguration, ChartData } from "chart.js";
+import { Chart, ChartConfiguration } from "chart.js";
 import React, { useEffect, useRef, useState } from "react";
 
-import * as model from "./model";
+import * as model from "../model";
 import { colorOf, IndicatorCombo } from "./charts";
 
 export const ProcessContributionChart = ({ report }: { report: model.Report }) => {
@@ -44,31 +44,33 @@ function configOf(report: model.Report, indicator: model.ReportIndicator):
 
   const variants = report.variants;
 
-  const data: ChartData = {
-    labels: variants.map(variant => variant.name),
-    datasets: report.processes.map((process, idx) => {
-      return {
-        label: process.name,
-        backgroundColor: colorOf(idx),
-        maxBarThickness: 50,
-        data: variants.map(variant => model.getContribution(
-          { report, indicator, variant, process }))
-      }
-    })
-  };
-  data.datasets.push({
+  const datasets = [];
+  datasets.push({
     label: "Other",
     backgroundColor: "rgba(121, 121, 121, 0.5)",
     maxBarThickness: 50,
     data: variants.map((variant) => model.getContribution(
       { report, indicator, variant, rest: true })),
   });
+  for (let i = 0; i < report.processes.length; i++) {
+    const process = report.processes[i];
+    datasets.push({
+      label: process.name,
+      backgroundColor: colorOf(i),
+      maxBarThickness: 50,
+      data: variants.map(variant => model.getContribution(
+        { report, indicator, variant, process }))
+    })
+  }
 
   const unit = indicator.impact.referenceUnit || "";
 
   return {
     type: "bar",
-    data,
+    data: {
+      labels: variants.map(variant => variant.name),
+      datasets,
+    },
     options: {
       responsive: false,
       scales: {
@@ -82,13 +84,15 @@ function configOf(report: model.Report, indicator: model.ReportIndicator):
         legend: { display: true, position: "bottom" },
         tooltip: {
           callbacks: {
-            label: (item) => `${item.formattedValue} ${unit}`,
+            label: (item) => {
+              const num = (item.raw as number).toExponential(3);
+              return `${num} ${unit} : ${item.dataset.label}`;
+            },
           }
         }
       }
     },
   }
-
 }
 
 function isEmpty<T>(xs: T[]): boolean {
