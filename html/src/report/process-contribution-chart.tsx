@@ -2,10 +2,9 @@ import { Chart, ChartConfiguration } from "chart.js";
 import React, { useEffect, useRef, useState } from "react";
 
 import * as model from "./model";
-import { IndicatorCombo } from "./charts";
+import { IndicatorCombo } from "./indicator-combo";
 
-export const IndicatorBarChart = ({ report }: { report: model.Report }) => {
-
+export const ProcessContributionChart = ({ report }: { report: model.Report }) => {
   const indicators = report.indicators;
   const variants = report.variants;
   if (!variants || variants.length === 0 ||
@@ -37,47 +36,15 @@ export const IndicatorBarChart = ({ report }: { report: model.Report }) => {
         style={{ display: "inline-block" }} />
     </div>
   );
+
 }
 
-function configOf(
-  report: model.Report,
-  indicator: model.ReportIndicator): ChartConfiguration {
-
-  const results = [];
-  const labels = [];
-  for (const variant of report.variants) {
-    labels.push(variant.name);
-    results.push(model.getVariantResult(report, variant, indicator));
-  }
-  const unit = indicator.impact.referenceUnit || "";
+function configOf(report: model.Report, indicator: model.ReportIndicator):
+  ChartConfiguration {
 
   return {
-
     type: "bar",
-    data: {
-      labels,
-      datasets: [{
-        data: results,
-        label: indicator.impact.name,
-        borderColor: "#7b0052",
-        backgroundColor: "#7b0052",
-        maxBarThickness: 50,
-      }],
-    },
 
-    options: {
-      responsive: false,
-      scales: {
-        y: { title: { display: true, text: unit } }
-      },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: (item) => `${item.formattedValue} ${unit}`,
-          }
-        }
-      }
-    },
-  };
+  }
+
 }

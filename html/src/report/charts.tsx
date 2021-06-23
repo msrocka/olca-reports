@@ -38,7 +38,7 @@ export const IndicatorChart = ({ report, contributions }: IndicatorConfig) => {
         datasets: report.processes.map((process, idx) => {
           return {
             label: process.name,
-            backgroundColor: _color(idx),
+            backgroundColor: colorOf(idx),
             data: variants.map((variant) => getContribution(
               { report, indicator, variant, process })),
           };
@@ -97,7 +97,7 @@ export const SingleScoreChart = ({ report }: { report: Report }) => {
     datasets: indicators.map((i, idx) => {
       return {
         label: i.impact.name,
-        backgroundColor: _color(idx),
+        backgroundColor: colorOf(idx),
         data: variants.map((v) => getSingleScore(report, v, i)),
       };
     }),
@@ -229,7 +229,7 @@ function _barConfig(data: ChartData,
   };
 }
 
-function _color(i: number, alpha?: number): string {
+export function colorOf(i: number, alpha?: number): string {
   const colors = [
     "229, 48, 57",
     "41, 111, 196",
@@ -250,13 +250,16 @@ function _color(i: number, alpha?: number): string {
     "0, 111, 154",
     "255, 153, 0",
   ];
-  if (i >= colors.length) {
-    return "rgb(0, 0, 0)";
+  let color;
+  if (i < colors.length) {
+    color = colors[i];
+  } else {
+    const gen = () => Math.round(Math.random() * 255);
+    color = `${gen()}, ${gen()}, ${gen()}`;
   }
-  if (!alpha) {
-    return "rgb(" + colors[i] + ")";
-  }
-  return `rgba(${colors[i]}, ${alpha})`;
+  return alpha
+    ? `rgba(${color}, ${alpha})`
+    : "rgb(" + color + ")"
 }
 
 /** Returns the maximum indicator values in a map: indicator ID -> max. */
@@ -285,8 +288,8 @@ function _comparisonData(p: CompProps, variants: ReportVariant[],
     datasets: variants.map((v, index) => {
       return {
         label: v.name,
-        borderColor: _color(index),
-        backgroundColor: _color(index, p.type === "radar" ? 0.2 : null),
+        borderColor: colorOf(index),
+        backgroundColor: colorOf(index, p.type === "radar" ? 0.2 : null),
         data: indicators.map((i) => {
           if (p.normalized) {
             return getNormalizedResult(p.report, v, i);
@@ -297,4 +300,30 @@ function _comparisonData(p: CompProps, variants: ReportVariant[],
       };
     }),
   };
+}
+
+export const IndicatorCombo = ({ indicators, selectedIndex, onChange }: {
+  indicators: ReportIndicator[],
+  selectedIndex: number,
+  onChange: (nextIndex: number) => void,
+}) => {
+
+  const options = indicators.map((indicator, idx) => (
+    <option key={indicator.impact.refId} value={idx}>
+      {indicator.impact.name}
+    </option>
+  ));
+
+  return (
+    <form>
+      <fieldset>
+        <select
+          value={selectedIndex}
+          style={{ width: 300 }}
+          onChange={e => onChange(parseInt(e.target.value, 10))}>
+          {options}
+        </select>
+      </fieldset>
+    </form>
+  );
 }
