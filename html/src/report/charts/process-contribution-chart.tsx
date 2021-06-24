@@ -9,7 +9,7 @@ import {
   VariantResult
 } from "../model";
 import { colorOf, IndicatorCombo } from "./charts";
-import { hasResults, isEmpty } from "../util";
+import { hasResults, isEmpty, variantResultOf } from "../util";
 
 export const ProcessContributionChart = ({ report }: { report: Report }) => {
   const indicators = report.indicators;
@@ -123,22 +123,4 @@ function restOf(report: Report, indicator: ReportIndicator,
     rest -= c;
   }
   return rest;
-}
-
-function variantResultOf(
-  report: Report,
-  indicator: ReportIndicator,
-  variant: ReportVariant): VariantResult {
-  for (const result of report.results) {
-    if (result.indicatorId != indicator.impact.refId
-      || isEmpty(result.variantResults)) {
-      continue;
-    }
-    for (const vr of result.variantResults) {
-      if (vr.variant == variant.name) {
-        return vr;
-      }
-    }
-  }
-  return null;
 }

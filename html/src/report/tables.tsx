@@ -1,9 +1,12 @@
 import React from "react";
 import {
-  Report, ReportIndicator, ReportVariant, ReportParameter,
-  getVariantResult, getNormalizedResult, getSingleScore, ReportCostResult,
-  scientific,
+  Report,
+  ReportIndicator,
+  ReportVariant,
+  ReportParameter,
+  ReportCostResult,
 } from "./model";
+import { formatScientific, normalizedResultOf, singleScoreOf, totalResultOf } from "./util";
 
 type Props = { report: Report };
 
@@ -108,12 +111,12 @@ export const ResultTable = ({ report, normalized, singleScore }: ResultProps) =>
 
   const amount = (v: ReportVariant, i: ReportIndicator) => {
     if (normalized) {
-      return scientific(getNormalizedResult(report, v, i));
+      return formatScientific(normalizedResultOf(report, i, v));
     }
     if (singleScore) {
-      return scientific(getSingleScore(report, v, i));
+      return formatScientific(singleScoreOf(report, i, v));
     }
-    return scientific(getVariantResult(report, v, i));
+    return formatScientific(totalResultOf(report, i, v));
   };
 
   const row = (i: ReportIndicator) => {

@@ -1,8 +1,8 @@
 import React from "react";
 import { ChartConfiguration, ChartData } from "chart.js";
-import { getSingleScore, Report } from "../model";
+import { Report } from "../model";
 import { colorOf, staticChartOf } from "./charts";
-import { hasResults } from "../util";
+import { hasResults, singleScoreOf } from "../util";
 
 export const SingleScoreChart = ({ report }: { report: Report }) => {
 
@@ -20,7 +20,7 @@ export const SingleScoreChart = ({ report }: { report: Report }) => {
         label: i.impact.name,
         backgroundColor: colorOf(idx),
         maxBarThickness: 50,
-        data: variants.map((v) => getSingleScore(report, v, i)),
+        data: variants.map((v) => singleScoreOf(report, i, v)),
       };
     }),
   };

@@ -1,6 +1,7 @@
 import { ChartConfiguration, ChartData } from "chart.js";
 import React, { useEffect, useRef } from "react";
-import { getNormalizedResult, getVariantResult, Report, ReportIndicator, ReportVariant } from "../model";
+import { Report, ReportIndicator, ReportVariant } from "../model";
+import { normalizedResultOf, variantResultOf } from "../util";
 import { colorOf, staticChartOf } from "./charts";
 
 type CompProps = {
@@ -81,9 +82,9 @@ function _comparisonData(p: CompProps, variants: ReportVariant[],
         backgroundColor: colorOf(index, p.type === "radar" ? 0.2 : null),
         data: indicators.map((i) => {
           if (p.normalized) {
-            return getNormalizedResult(p.report, v, i);
+            return normalizedResultOf(p.report, i, v);
           }
-          const result = getVariantResult(p.report, v, i);
+          const result = variantResultOf(p.report, i, v)?.totalAmount || 0;
           return 100 * result / maxvals[i.impact.refId];
         }),
       };
@@ -98,7 +99,7 @@ function _maxIndicatorValues(report: Report, variants: ReportVariant[],
   const maxvals: NMap = indicators.reduce((m: NMap, indicator) => {
     let max: number = variants.reduce((m: number, variant) => {
       const result = Math.abs(
-        getVariantResult(report, variant, indicator));
+        variantResultOf(report, indicator, variant)?.totalAmount || 0);
       return Math.max(result, m);
     }, 0);
     max = max === 0 ? 1 : max;

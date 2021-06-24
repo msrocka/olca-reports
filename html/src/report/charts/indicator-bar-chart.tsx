@@ -1,11 +1,11 @@
 import { Chart, ChartConfiguration } from "chart.js";
 import React, { useEffect, useRef, useState } from "react";
 
-import * as model from "../model";
 import { IndicatorCombo } from "./charts";
-import { hasResults, isEmpty } from "../util";
+import { hasResults, variantResultOf } from "../util";
+import { Report, ReportIndicator } from "../model";
 
-export const IndicatorBarChart = ({ report }: { report: model.Report }) => {
+export const IndicatorBarChart = ({ report }: { report: Report }) => {
 
   const indicators = report.indicators;
   if (!hasResults(report)) {
@@ -39,14 +39,14 @@ export const IndicatorBarChart = ({ report }: { report: model.Report }) => {
 }
 
 function configOf(
-  report: model.Report,
-  indicator: model.ReportIndicator): ChartConfiguration {
+  report: Report, indicator: ReportIndicator): ChartConfiguration {
 
   const results = [];
   const labels = [];
   for (const variant of report.variants) {
     labels.push(variant.name);
-    results.push(model.getVariantResult(report, variant, indicator));
+    const value = variantResultOf(report, indicator, variant)?.totalAmount || 0;
+    results.push(value);
   }
   const unit = indicator.impact.referenceUnit || "";
 
