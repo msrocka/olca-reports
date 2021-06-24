@@ -1,7 +1,7 @@
 import React from "react";
 import { render } from "react-dom";
 
-import { Report, ReportSection } from "./model";
+import { Report } from "./model";
 import {
   VariantDescriptionTable,
   IndicatorDescriptionTable,
@@ -14,36 +14,26 @@ import {
 import { IndicatorBarChart } from "./charts/indicator-bar-chart";
 import { ProcessContributionChart } from "./charts/process-contribution-chart";
 import { SingleScoreChart } from "./charts/single-score-bar-chart";
+import { ComparisonChart } from "./charts/comparison-chart";
 
-import { ComparisonChart } from "./charts/charts";
-
-type Props = { report: Report };
-
-const Page = ({ report }: Props) => {
+const Page = ({ report }: { report: Report }) => {
   const sections: JSX.Element[] = [];
   if (report.sections) {
-    report.sections.forEach((s) => {
+    for (const section of report.sections) {
+      const component = getSectionComponent(section.componentId, report);
       sections.push(
-        <Section key={s.index} section={s} report={report} />
+        <div key={section.index}>
+          <h3>{section.title}</h3>
+          <p dangerouslySetInnerHTML={{ __html: section.text }} />
+          {component}
+        </div>
       );
-    });
+    }
   }
   return (
     <div className="container" style={{ marginTop: 25 }}>
       <h1>{report.title}</h1>
       {sections}
-    </div>
-  );
-};
-
-type SectionProps = { section: ReportSection; report: Report; };
-const Section = ({ section, report }: SectionProps) => {
-  const component = getSectionComponent(section.componentId, report);
-  return (
-    <div>
-      <h3>{section.title}</h3>
-      <p dangerouslySetInnerHTML={{ __html: section.text }} />
-      {component}
     </div>
   );
 };

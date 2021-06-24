@@ -33,6 +33,7 @@ public class FullReportExample {
       for (var comp : ReportComponent.values()) {
         var id = comp.id();
         var section = new ReportSection();
+        section.index = report.sections.size();
         section.title = id;
         section.text = "Test of component with id=" + id;
         section.componentId = id;
