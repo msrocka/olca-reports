@@ -1,7 +1,6 @@
-import { ChartConfiguration, ChartData } from "chart.js";
-import React, { useEffect, useRef } from "react";
-import { Report, ReportIndicator, ReportVariant } from "../model";
-import { normalizedResultOf, variantResultOf } from "../util";
+import { ChartConfiguration, ChartData, ChartDataset } from "chart.js";
+import { Report } from "../model";
+import { formatScientific, normalizedResultOf, totalResultOf } from "../util";
 import { colorOf, staticChartOf } from "./charts";
 
 type CompProps = {
@@ -21,90 +20,87 @@ export const ComparisonChart = (props: CompProps) => {
 
   const config: ChartConfiguration = {
     type,
-    data: _comparisonData(props, variants, indicators),
+    data: comparisonData(props),
     options: {
       responsive: false,
       plugins: {
         legend: { position: "bottom" },
+        tooltip: {
+          callbacks: {
+            label: (item) => {
+              const value = item.raw as number;
+              const num = props.normalized
+                ? formatScientific(value, 3)
+                : value.toFixed(2) + "%";
+              return `${item.dataset.label}: ${num}`;
+            }
+          }
+        }
       },
     },
   };
 
-  /*
   if (type === "bar") {
     config.options.scales = {
-      xAxes: { maxBarThickness: 50 },
-      yAxes: {
+      y: {
         ticks: {
-          beginAtZero: true,
-          callback: (value: any) => props.normalized
-            ? scientific(value) : `${value}%`,
-        },
-      },
-    };
-    config.options.tooltips = {
-      callbacks: {
-        label: (item) => {
-          const value = parseFloat(item.value);
-          const s = props.normalized
-            ? scientific(value)
-            : `${Math.round(value)}%`;
-          return `${item.label}: ${s}`;
-        },
-      },
-    };
+          callback: (value) => props.normalized
+            ? value
+            : `${value}%`
+        }
+      }
+    }
+  } else if (type === "radar") {
+    config.options.scales = {
+      r: {
+        ticks: { display: false }
+      }
+    }
   }
-
-  if (type === "radar") {
-    config.options.scale = {
-      ticks: {
-        beginAtZero: true,
-        display: false,
-      },
-    };
-  }
-  */
 
   return staticChartOf(config);
 };
 
 
-function _comparisonData(p: CompProps, variants: ReportVariant[],
-  indicators: ReportIndicator[]): ChartData {
-  const maxvals = p.normalized ? null : _maxIndicatorValues(
-    p.report, variants, indicators);
-  return {
-    labels: indicators.map((i) => i.impact.name),
-    datasets: variants.map((v, index) => {
-      return {
-        label: v.name,
-        borderColor: colorOf(index),
-        backgroundColor: colorOf(index, p.type === "radar" ? 0.2 : null),
-        data: indicators.map((i) => {
-          if (p.normalized) {
-            return normalizedResultOf(p.report, i, v);
-          }
-          const result = variantResultOf(p.report, i, v)?.totalAmount || 0;
-          return 100 * result / maxvals[i.impact.refId];
-        }),
-      };
-    }),
-  };
+function comparisonData(p: CompProps): ChartData {
+  const report = p.report;
+  const indicators = report.indicators;
+  const maxvals = p.normalized
+    ? null
+    : maxIndicatorResults(p.report);
+  const labels = indicators.map(i => i.impact.name);
+
+  const datasets = report.variants.map((variant, index): ChartDataset => {
+    return {
+      label: variant.name,
+      borderColor: colorOf(index),
+      backgroundColor: colorOf(index, p.type === "radar" ? 0.2 : null),
+      maxBarThickness: 50,
+      data: indicators.map(indicator => {
+        if (p.normalized) {
+          return normalizedResultOf(p.report, indicator, variant);
+        }
+        const result = totalResultOf(p.report, indicator, variant);
+        const max = maxvals[indicator.impact.refId];
+        return !max
+          ? 0
+          : 100 * result / max;
+      }),
+    }
+  });
+
+  return { labels, datasets };
 }
 
-/** Returns the maximum indicator values in a map: indicator ID -> max. */
-function _maxIndicatorValues(report: Report, variants: ReportVariant[],
-  indicators: ReportIndicator[]): Record<string, number> {
-  type NMap = Record<string, number>;
-  const maxvals: NMap = indicators.reduce((m: NMap, indicator) => {
-    let max: number = variants.reduce((m: number, variant) => {
-      const result = Math.abs(
-        variantResultOf(report, indicator, variant)?.totalAmount || 0);
-      return Math.max(result, m);
-    }, 0);
-    max = max === 0 ? 1 : max;
-    m[indicator.impact.refId] = max;
-    return m;
-  }, {});
-  return maxvals;
+function maxIndicatorResults(report: Report): Record<string, number> {
+  const maxVals: Record<string, number> = {};
+  for (const indicator of report.indicators) {
+    let max = 0;
+    for (const variant of report.variants) {
+      const next = Math.abs(totalResultOf(report, indicator, variant));
+      max = Math.max(max, next);
+    }
+    maxVals[indicator.impact.refId] = max;
+  }
+  return maxVals;
 }

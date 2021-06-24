@@ -6,7 +6,6 @@ import {
   Report,
   ReportIndicator,
   ReportVariant,
-  VariantResult
 } from "../model";
 import { colorOf, IndicatorCombo } from "./charts";
 import { hasResults, isEmpty, variantResultOf } from "../util";

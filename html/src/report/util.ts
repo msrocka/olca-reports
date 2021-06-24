@@ -58,9 +58,9 @@ export function singleScoreOf(
   return n * w;
 };
 
-export function formatScientific(n: number): string {
+export function formatScientific(n: number, digits=5): string {
   if (typeof n !== "number") {
     return "";
   }
-  return n.toExponential(5);
+  return n.toExponential(digits);
 }

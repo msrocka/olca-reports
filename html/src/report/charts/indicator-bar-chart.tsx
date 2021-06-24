@@ -2,7 +2,7 @@ import { Chart, ChartConfiguration } from "chart.js";
 import React, { useEffect, useRef, useState } from "react";
 
 import { IndicatorCombo } from "./charts";
-import { hasResults, variantResultOf } from "../util";
+import { hasResults, totalResultOf } from "../util";
 import { Report, ReportIndicator } from "../model";
 
 export const IndicatorBarChart = ({ report }: { report: Report }) => {
@@ -45,8 +45,7 @@ function configOf(
   const labels = [];
   for (const variant of report.variants) {
     labels.push(variant.name);
-    const value = variantResultOf(report, indicator, variant)?.totalAmount || 0;
-    results.push(value);
+    results.push(totalResultOf(report, indicator, variant));
   }
   const unit = indicator.impact.referenceUnit || "";
 
