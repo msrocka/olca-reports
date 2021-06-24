@@ -31,7 +31,7 @@ public class ProcessContributionExample {
       section.title = "Process contributions";
       section.text = "Some process contributions ...";
       section.componentId = ReportComponent.PROCESS_CONTRIBUTION_CHART
-        .getId();
+        .id();
       report.sections.add(section);
 
       // add n top contributors for each project variant
@@ -64,7 +64,7 @@ public class ProcessContributionExample {
       }
 
       // write the report
-      var json = report.fill(result)
+      var json = report.fillWith(result)
         .toJson();
       var file = Paths.get("C:/Users/ms/Desktop/call_procs.js");
       Files.writeString(file, "setData(" + json + ")\n");

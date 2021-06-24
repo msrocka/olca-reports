@@ -18,7 +18,7 @@ public class DefaultReportExample {
       var project = db.get(Project.class, refId);
       var result = ProjectResultData.calculate(project, db);
       var json = Report.initDefault()
-        .fill(result)
+        .fillWith(result)
         .toJson();
       var file = Paths.get("C:/Users/ms/Desktop/call.js");
       Files.writeString(file, "setData(" + json + ")\n");

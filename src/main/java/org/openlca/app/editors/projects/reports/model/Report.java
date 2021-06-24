@@ -43,7 +43,7 @@ public class Report {
     withWeighting = false;
   }
 
-  public Report fill(ProjectResultData data) {
+  public Report fillWith(ProjectResultData data) {
     ReportFiller.of(data).fill(this);
     return this;
   }
@@ -79,7 +79,7 @@ public class Report {
         section.index = idx;
         section.title = props.getProperty(component.name() + ".title");
         section.text = props.getProperty(component.name() + ".text");
-        section.componentId = component.getId();
+        section.componentId = component.id();
         report.sections.add(section);
         idx++;
       }
